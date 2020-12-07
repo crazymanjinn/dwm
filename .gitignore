@@ -1,0 +1,8 @@
+# full binary
+dwm
+
+# Object files
+*.o
+
+# Generated config
+config.h
