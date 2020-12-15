@@ -1,0 +1,3 @@
+[submodule "submodules/patches"]
+	path = submodules/patches
+	url = https://github.com/bakkeby/patches.git
