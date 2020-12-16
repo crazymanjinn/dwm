@@ -1956,9 +1956,6 @@ updatesizehints(Client *c)
 	if (size.flags & PBaseSize) {
 		c->basew = size.base_width;
 		c->baseh = size.base_height;
-	} else if (size.flags & PMinSize) {
-		c->basew = size.min_width;
-		c->baseh = size.min_height;
 	} else
 		c->basew = c->baseh = 0;
 	if (size.flags & PResizeInc) {
@@ -1971,10 +1968,7 @@ updatesizehints(Client *c)
 		c->maxh = size.max_height;
 	} else
 		c->maxw = c->maxh = 0;
-	if (size.flags & PMinSize) {
-		c->minw = size.min_width;
-		c->minh = size.min_height;
-	} else if (size.flags & PBaseSize) {
+	if (size.flags & PBaseSize) {
 		c->minw = size.base_width;
 		c->minh = size.base_height;
 	} else
