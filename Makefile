@@ -19,7 +19,7 @@ options:
 
 ${OBJ}: config.h config.mk
 
-config.h: config.def.h
+config.h: config.def.h vanitygaps.c
 	cp $< $@
 
 dwm: ${OBJ}
