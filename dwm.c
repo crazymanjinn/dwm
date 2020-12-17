@@ -94,6 +94,7 @@ struct Client {
 	unsigned int tags;
 	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
 	int fakefullscreen;
+	int fsresize;
 	Client *next;
 	Client *snext;
 	Monitor *mon;
@@ -140,6 +141,7 @@ typedef struct {
 	unsigned int tags;
 	int isfloating;
 	int isfakefullscreen;
+	int fsresize;
 	int monitor;
 } Rule;
 
@@ -306,6 +308,7 @@ applyrules(Client *c)
 			c->isfloating = r->isfloating;
 			c->tags |= r->tags;
 			c->fakefullscreen = r->isfakefullscreen;
+			c->fsresize = r->fsresize;
 			for (m = mons; m && m->num != r->monitor; m = m->next);
 			if (m)
 				c->mon = m;
@@ -1576,6 +1579,15 @@ setfullscreen(Client *c, int fullscreen)
 			restack(c->mon);
 		} else
 			arrange(c->mon);
+	}
+
+	if (c->fsresize) {
+		float mf = selmon->mfact;
+		Arg a;
+		a.f = 0.001;
+		setmfact(&a);
+		a.f = mf+1;
+		setmfact(&a);
 	}
 }
 
