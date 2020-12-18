@@ -15,10 +15,13 @@ static void centeredmaster(Monitor *m);
 static void centeredfloatingmaster(Monitor *m);
 static void deck(Monitor *m);
 static void dwindle(Monitor *m);
+static void dwindleh(Monitor *m);
 static void fibonacci(Monitor *m, int s);
+static void fibonaccih(Monitor *m, int s);
 static void grid(Monitor *m);
 static void nrowgrid(Monitor *m);
 static void spiral(Monitor *m);
+static void spiralh(Monitor *m);
 static void tile(Monitor *m);
 /* Internals */
 static void getgaps(Monitor *m, int *oh, int *ov, int *ih, int *iv, unsigned int *nc);
@@ -558,15 +561,114 @@ fibonacci(Monitor *m, int s)
 }
 
 void
+fibonaccih(Monitor *m, int s)
+{
+	unsigned int i, n;
+	int nx, ny, nw, nh;
+	int oh, ov, ih, iv;
+	int nv, hrest = 0, wrest = 0, r = 1;
+	Client *c;
+
+	getgaps(m, &oh, &ov, &ih, &iv, &n);
+	if (n == 0)
+		return;
+
+	nx = m->wx + ov;
+	ny = m->wy + oh;
+	nw = m->ww - 2*ov;
+	nh = m->wh - 2*oh;
+
+	for (i = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
+		if (r) {
+			if ((i % 2 && (nw - iv) / 2 <= (bh + 2*c->bw))
+			   || (!(i % 2) && (nh - ih) / 2 <= (bh + 2*c->bw))) {
+				r = 0;
+			}
+			if (r && i < n - 1) {
+				if (i % 2) {
+					nv = (nw - iv) / 2;
+					wrest = nw - 2*nv - iv;
+					nw = nv;
+				} else {
+					nv = (nh - ih) / 2;
+					hrest = nh - 2*nv - ih;
+					nh = nv;
+				}
+
+				if ((i % 4) == 2 && !s)
+					ny += nh + ih;
+				else if ((i % 4) == 3 && !s)
+					nx += nw + iv;
+			}
+
+			if ((i % 4) == 0) {
+				if (s) {
+					nx += nw + iv;
+					nw += wrest;
+				}
+				else {
+					nw -= wrest;
+					nx -= nw + iv;
+				}
+			}
+			else if ((i % 4) == 1) {
+				ny += nh + ih;
+				nh += hrest;
+			}
+			else if ((i % 4) == 2) {
+				nx += nw + iv;
+				nw += wrest;
+				if (i < n - 1)
+					nh += hrest;
+			}
+			else if ((i % 4) == 3) {
+				if (s) {
+					ny += nh + ih;
+					nh -= hrest;
+				} else {
+					nh -= hrest;
+					ny -= nh + ih;
+					nw += wrest;
+				}
+			}
+			if (i == 0)	{
+				if (n != 1) {
+					nh = (m->wh - ih - 2+oh) - (m->wh - ih - 2*oh) * (1 - m->mfact);
+					hrest = 0;
+				}
+				nx = m->wx + ov;
+			}
+			else if (i == 1)
+				nh = m->wh - nh - ih - 2*oh;
+			i++;
+		}
+
+		resize(c, nx, ny, nw - (2*c->bw), nh - (2*c->bw), False);
+	}
+}
+
+void
 dwindle(Monitor *m)
 {
 	fibonacci(m, 1);
 }
 
 void
+dwindleh(Monitor *m)
+{
+	fibonaccih(m, 1);
+}
+
+void
 spiral(Monitor *m)
 {
 	fibonacci(m, 0);
+}
+
+void
+spiralh(Monitor *m)
+{
+	fibonaccih(m, 0);
 }
 
 /*
